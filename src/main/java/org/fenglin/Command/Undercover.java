@@ -23,7 +23,7 @@ public class Undercover extends JCompositeCommand implements Runnable  {
     //另开线程时事检测游戏进程
     @Override
     public void run() {
-        while (true){
+        while (true) {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -31,87 +31,86 @@ public class Undercover extends JCompositeCommand implements Runnable  {
             }
 
 //          描述阶段检测
-            if (c1==codplay.describe){
-                AtomicReference<Boolean> isD= new AtomicReference<>(false);
-                data.forEach(v->{
-                    if (v.getDescribe().equals("空")){
+            if (c1 == codplay.describe) {
+                AtomicReference<Boolean> isD = new AtomicReference<>(false);
+                data.forEach(v -> {
+                    if (v.getDescribe().equals("空")) {
                         isD.set(true);
-                    };
+                    }
+                    ;
                 });
-                if (!isD.get()){
-                    c1=codplay.vote;
+                if (!isD.get()) {
+                    c1 = codplay.vote;
                     sender_run.sendMessage("描述阶段结束，开始投票阶段");
 
                 }
             }
             //          投票阶段检测
-            if (c1==codplay.vote){
-                AtomicReference<Boolean> isD= new AtomicReference<>(false);
+            if (c1 == codplay.vote) {
+                AtomicReference<Boolean> isD = new AtomicReference<>(false);
 //                v.setIsviod(false); 完成投票  全部为false即为投票完成 有一个ture跳过！
-                data.forEach(v->{
-                    if (v.getIsviod()){
+                data.forEach(v -> {
+                    if (v.getIsviod()) {
                         isD.set(true);
-                    };
+                    }
                 });
-                if (isD.get() == false){
+                if (isD.get() == false) {
                     System.out.println("投票完成！开始判决");
 //                  寻找最高票
-                    int max_v=0;int max_i=0;
+                    int max_v = 0;
                     for (int i = 0; i < data.size(); i++) {
-                        if (data.get(i).getViod()>max_v){
-                            max_v=data.get(i).getViod();
+                        if (data.get(i).getViod() > max_v) {
+                            max_v = data.get(i).getViod();
+//
+                        }
+                    }
+//                  寻找最高票所在的索引
+                    int max_i = 0;
+                    for (int i = 0; i < data.size(); i++) {
+                        if (data.get(i).getViod()==max_v){
                             max_i=i;
                         }
                     }
 //                  判断胜负
-
-
-                    String info = "----本局战况\n----";
-                    info +=  "普通玩家胜利";
                     if (data.get(max_i).getIsundercover()){
-
+                        sender_run.sendMessage("玩家胜出");
+                        String info="本局情况\n";
+                        info+=data.get(max_i).getName()+"是本局的卧底！\n";
                         for (Map.Entry<String, String> entry : world_data.entrySet()) {
-                            info+="玩家词条：" + entry.getKey() + ",卧底词条：" + entry.getValue()+"\n";
-                        }
-//                  卧底信息
-                        for (int i = 0; i < data.size(); i++) {
-                            if (data.get(i).getIsundercover()) {
-                                info += "本局卧底：" + data.get(i).getName();
-                            }
+                            info+="玩家词条" + entry.getValue() + ", 卧底词条" + entry.getKey()+"\n";
                         }
                         sender_run.sendMessage(info);
-                        c1=codplay.Cpaly;
+//                      重置
                         data.clear();
-                      return;
-                    }else {
-//                      删除查看剩余人数
-                        data.remove(max_i);
-                        if (data.size()>1){
-                            String infoW = "----本局战况\n----";
-                            infoW +=  "普通玩家胜利";
-                            for (Map.Entry<String, String> entry : world_data.entrySet()) {
-                                infoW+="玩家词条：" + entry.getKey() + ",卧底词条：" + entry.getValue()+"\n";
-                            }
-                            for (int i = 0; i < data.size(); i++) {
-                                if (data.get(i).getIsundercover()) {
-                                    infoW += "本局卧底：" + data.get(i).getName();
-                                }
-                            }
-                            sender_run.sendMessage(info);
-                            c1=codplay.Cpaly;
-                            data.clear();
-                            return;
-                        }
+                        c1=codplay.Cpaly;
+                        return;
                     }
-//                  转化描述状态！
-                    sender_run.sendMessage("卧底存在!继续描述.");
+//                  卧底胜利条件判断
+                    if (data.size() -1 >= 2){
+                        sender_run.sendMessage("卧底");
+                        String info="本局情况\n";
+                        info+=data.get(max_i).getName()+"是本局的卧底！\n";
+                        for (Map.Entry<String, String> entry : world_data.entrySet()) {
+                            info+="玩家词条：" + entry.getValue() + ", 卧底词条：" + entry.getKey()+"\n";
+                        }
+                        sender_run.sendMessage(info);
+//                      重置
+                        data.clear();
+                        c1=codplay.Cpaly;
+                        return;
+                    }
+//                  游戏继续判断
+                    sender_run.sendMessage("判决结束，玩家"+data.get(max_i).getName()+"出局，游戏继续");
+                    data.remove(max_i);
                     c1=codplay.describe;
-                }else {
-
+                    return;
                 }
             }
+//
+
         }
     }
+
 
     enum codplay{
         Cpaly,//创建游戏时
@@ -174,12 +173,11 @@ public class Undercover extends JCompositeCommand implements Runnable  {
                 world_data = world.get(random.nextInt(world.size()));
 //          分配词条
                 for (Map.Entry<String, String> entry : world_data.entrySet()) {
-                    System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
                     for (int i=0;i<data.size();i++){
-                        data.get(i).setWorld(entry.getKey());
+                        data.get(i).setWorld(entry.getValue());
                     }
                     //随机卧底
-                    data.get(random.nextInt(data.size())).setWorld(entry.getValue());
+                    data.get(random.nextInt(data.size())).setWorld(entry.getKey());
                     data.get(random.nextInt(data.size())).setIsundercover(true);
 
                 }
@@ -204,8 +202,7 @@ public class Undercover extends JCompositeCommand implements Runnable  {
 
             AtomicReference<Boolean> isf= new AtomicReference<>(false);
             data.forEach(v->{
-                if (sender.getUser().getId()==v.getId() && v.getIsadmin()){
-
+                if (sender.getUser().getId()==v.getId() && v.getIsadmin()==true){
                     isf.set(true);
                 }
             });
