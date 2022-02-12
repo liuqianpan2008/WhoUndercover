@@ -5,6 +5,8 @@ import net.mamoe.mirai.console.data.value
 
 class MyDate {
    companion object MyDate : AutoSavePluginData("world") { // 词条库
-       var world: List<Map<String,String>> by value()
+       var world: List<Map<String,String>> by value(mutableListOf<Map<String,String>>(
+           mapOf("玩家词条" to "卧底词条")
+       ))
    }
 }
