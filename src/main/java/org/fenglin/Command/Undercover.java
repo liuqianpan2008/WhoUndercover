@@ -5,8 +5,6 @@ import net.mamoe.mirai.console.command.java.JCompositeCommand;
 import net.mamoe.mirai.contact.User;
 import org.fenglin.Mypaly;
 import org.fenglin.data.MyDate;
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Undercover extends JCompositeCommand implements Runnable  {
     private List<Mypaly> data=new ArrayList<>();
-    private Boolean Isrun=false;
     private CommandSender sender_run=null;
+    private Map<String,String> world_data;
     public Undercover(){
         super(org.fenglin.WhoUndercover.INSTANCE, "谁是卧底");
         setPrefixOptional(true);
@@ -66,8 +64,22 @@ public class Undercover extends JCompositeCommand implements Runnable  {
                         }
                     }
 //                  判断胜负
+
+
+                    String info = "----本局战况\n----";
+                    info +=  "普通玩家胜利";
                     if (data.get(max_i).getIsundercover()){
-                        sender_run.sendMessage("普通玩家胜利！");
+
+                        for (Map.Entry<String, String> entry : world_data.entrySet()) {
+                            info+="玩家词条：" + entry.getKey() + ",卧底词条：" + entry.getValue()+"\n";
+                        }
+//                  卧底信息
+                        for (int i = 0; i < data.size(); i++) {
+                            if (data.get(i).getIsundercover()) {
+                                info += "本局卧底：" + data.get(i).getName();
+                            }
+                        }
+                        sender_run.sendMessage(info);
                         c1=codplay.Cpaly;
                         data.clear();
                       return;
@@ -75,14 +87,24 @@ public class Undercover extends JCompositeCommand implements Runnable  {
 //                      删除查看剩余人数
                         data.remove(max_i);
                         if (data.size()>1){
-                            sender_run.sendMessage("卧底玩家胜利！");
+                            String infoW = "----本局战况\n----";
+                            infoW +=  "普通玩家胜利";
+                            for (Map.Entry<String, String> entry : world_data.entrySet()) {
+                                infoW+="玩家词条：" + entry.getKey() + ",卧底词条：" + entry.getValue()+"\n";
+                            }
+                            for (int i = 0; i < data.size(); i++) {
+                                if (data.get(i).getIsundercover()) {
+                                    infoW += "本局卧底：" + data.get(i).getName();
+                                }
+                            }
+                            sender_run.sendMessage(info);
                             c1=codplay.Cpaly;
                             data.clear();
                             return;
                         }
                     }
 //                  转化描述状态！
-                    sender_run.sendMessage("卧底存在投票继续！");
+                    sender_run.sendMessage("卧底存在!继续描述.");
                     c1=codplay.describe;
                 }else {
 
@@ -149,7 +171,7 @@ public class Undercover extends JCompositeCommand implements Runnable  {
                     sender.sendMessage("无配置词库，无法开始");
                 }
                 Random random=new Random();
-                Map<String,String> world_data = world.get(random.nextInt(world.size()));
+                world_data = world.get(random.nextInt(world.size()));
 //          分配词条
                 for (Map.Entry<String, String> entry : world_data.entrySet()) {
                     System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
@@ -163,7 +185,7 @@ public class Undercover extends JCompositeCommand implements Runnable  {
                 }
 //            通告
                 for (int i=0;i<data.size();i++){
-                    sender.getBot().getFriend(data.get(i).getId()).sendMessage(data.get(i).getWorld());
+                    sender.getBot().getFriend(data.get(i).getId()).sendMessage("本局你的词条为："+data.get(i).getWorld());
                 }
 //          更改状态
                 c1=codplay.describe;
