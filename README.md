@@ -101,6 +101,6 @@ world:
 
 本插件有很多设想未能实现的功能，如果你有更好的优化方法欢迎提交属于你的pr，同时欢迎提pr。
 
-* 感谢 [SkyNet1748 ](https://github.com/SkyNet1748)，[LaoLittle](https://github.com/LaoLittle)，[404E](https://github.com/4o4E) 对本插件的测试帮助！
+* 感谢 [Samarium150](https://github.com/Samarium150)，[LaoLittle](https://github.com/LaoLittle)，[404E](https://github.com/4o4E) 对本插件的测试帮助！
 
 * Q群：877894787
